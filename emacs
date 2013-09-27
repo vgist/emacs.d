@@ -1,1 +1,0 @@
-(mapc 'load (directory-files "~/.emacs.d/config/" t "^[a-zA-Z0-9].*.el$"))
