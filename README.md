@@ -1,16 +1,23 @@
-Installation
-------------
+A reasonable Emacs config
 
-To install, run
+## Installation
 
-	git clone git://gitcafe.com/vgist/emacs.d.git ~/.emacs.d
-	cd ~/.emacs.d
-	make install
+```
+git clone https://github.com/vgist/emacs.d.git ~/.emacs.d
+```
 
-To update the repository, run
+Upon starting up Emacs for the first time, further third-party
+packages will be automatically downloaded and installed. If you
+encounter any errors at that stage, try restarting Emacs, and possibly
+running `M-x package-refresh-contents` before doing so.
 
-	make update
 
-or
+## Updates
 
-	git submodule update --init
+Update the config with `git pull`. You'll probably also want/need to update
+the third-party packages regularly too:
+
+<kbd>M-x package-list-packages</kbd>, then <kbd>U</kbd> followed by <kbd>x</kbd>.
+
+You should usually restart Emacs after pulling changes or updating
+packages so that they can take effect. 
