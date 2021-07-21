@@ -2,8 +2,38 @@
 ;;; Commentary:
 ;;; Code:
 
-(require-package 'molokai-theme)
-(load-theme 'molokai t)
+(require-package 'monokai-theme)
+
+;; Load monokai
+(load-theme 'monokai t)
+
+(setq monokai-background     "#2B3E50"
+      monokai-comments       "#8F908A"
+      monokai-highlight      "#405160")
+
+;; Unset background color in terminal
+(defun on-after-init (&optional frame)
+  (or frame (setq frame (selected-frame)))
+  (unless (display-graphic-p frame)
+    (set-face-background 'default "unspecified-bg" frame)
+    (set-face-background 'mode-line "unspecified-bg" frame)
+    (set-face-background 'mode-line-inactive "unspecified-bg" frame)
+    (set-face-background 'linum "unspecified-bg" frame)))
+(add-hook 'after-make-frame-functions 'on-after-init)
+(add-hook 'window-setup-hook 'on-after-init)
+
+;; Don't prompt to confirm theme safety. This avoids problems with
+;; first-time startup on Emacs > 26.3.
+(setq custom-safe-themes t)
+
+;; Ensure that themes will be applied even if they have not been customized
+(defun reapply-themes ()
+  "Forcibly load the themes listed in `custom-enabled-themes'."
+  (dolist (theme custom-enabled-themes)
+    (unless (custom-theme-p theme)
+      (load-theme theme)))
+  (custom-set-variables `(custom-enabled-themes (quote ,custom-enabled-themes))))
+(add-hook 'after-init-hook 'reapply-themes)
 
 (when (maybe-require-package 'dimmer)
   (setq-default dimmer-fraction 0.15)

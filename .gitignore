@@ -1,11 +1,13 @@
 *~
 !.gitkeep
 .DS_Store
-.tmp
 .uptimes.el
 custom.el
 elpa*
 eshell
+places
+pyim
+smex-items
 transient
 recentf
 viper

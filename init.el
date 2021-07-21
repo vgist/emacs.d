@@ -14,7 +14,6 @@
     (error "Emacs v%s or higher is required" minver)))
 
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-(add-to-list 'load-path (expand-file-name ".tmp" user-emacs-directory))
 (require 'init-benchmarking) ;; Measure startup time
 
 (defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
@@ -52,7 +51,7 @@
 (require 'init-whitespace)
 
 (require 'init-ivy)
-(require 'init-smex)
+(require 'init-minibuffer)
 (require 'init-company)
 (require 'init-mmm)
 (require 'init-neotree)
@@ -61,6 +60,7 @@
 (require 'init-csv)
 (require 'init-docker)
 (require 'init-markdown)
+(require 'init-erlang)
 (require 'init-php)
 (require 'init-python)
 (require 'init-rails)
@@ -69,13 +69,20 @@
 (require 'init-yaml)
 (require 'init-vimrc)
 
+(require 'init-paredit)
+(require 'init-lisp)
+(require 'init-slime)
+(require 'init-clojure)
+(require 'init-clojure-cider)
+(require 'init-common-lisp)
+
+(require 'init-pyim)
+
 (require 'init-folding)
 (require 'init-erc)
 
 (when *is-a-mac*
   (require-package 'osx-location))
-(unless (eq system-type 'windows-nt)
-  (maybe-require-package 'daemons))
 (maybe-require-package 'dotenv-mode)
 
 (when (maybe-require-package 'uptimes)

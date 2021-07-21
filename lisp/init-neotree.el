@@ -4,7 +4,8 @@
 
 (when (maybe-require-package 'neotree)
   (global-set-key (kbd "C-x n") 'neotree-toggle)
-  (setq neo-smart-open t)
+  (setq neo-smart-open t
+        neo-theme 'arrow)
   (setq-default neo-autorefresh t))
 
 (provide 'init-neotree)
