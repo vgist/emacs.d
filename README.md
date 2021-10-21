@@ -20,4 +20,8 @@ the third-party packages regularly too:
 <kbd>M-x package-list-packages</kbd>, then <kbd>U</kbd> followed by <kbd>x</kbd>.
 
 You should usually restart Emacs after pulling changes or updating
-packages so that they can take effect. 
+packages so that they can take effect.
+
+## Thanks
+
+<https://github.com/purcell/emacs.d>

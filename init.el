@@ -14,7 +14,6 @@
     (error "Emacs v%s or higher is required" minver)))
 
 (add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
-(add-to-list 'load-path (expand-file-name ".tmp" user-emacs-directory))
 (require 'init-benchmarking) ;; Measure startup time
 
 (defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
@@ -29,7 +28,7 @@
             (lambda () (setq gc-cons-threshold normal-gc-cons-threshold))))
 
 ;; Bootstrap config
-(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
+(setq custom-file (locate-user-emacs-file "custom.el"))
 (require 'init-utils)
 (require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
 ;; Calls (package-initialize)
@@ -45,42 +44,59 @@
 
 (require 'init-frame-hooks)
 (require 'init-global)
-(require 'init-term)
+(require 'init-xterm)
 (require 'init-themes)
+(require 'init-dired)
 (require 'init-ibuffer)
 (require 'init-flycheck)
 (require 'init-whitespace)
 
 (require 'init-ivy)
-(require 'init-smex)
+(require 'init-minibuffer)
 (require 'init-company)
 (require 'init-mmm)
 (require 'init-neotree)
 
+(require 'init-git)
+(require 'init-projectile)
+
+(require 'init-compile)
 (require 'init-css)
 (require 'init-csv)
 (require 'init-docker)
 (require 'init-markdown)
+(require 'init-erlang)
 (require 'init-php)
 (require 'init-python)
 (require 'init-rails)
 (require 'init-ruby)
 (require 'init-rust)
 (require 'init-yaml)
-(require 'init-vimrc)
+
+(require 'init-paredit)
+(require 'init-lisp)
+(require 'init-slime)
+(require 'init-common-lisp)
+
+(require 'init-pyim)
 
 (require 'init-folding)
 (require 'init-erc)
 
 (when *is-a-mac*
   (require-package 'osx-location))
-(unless (eq system-type 'windows-nt)
-  (maybe-require-package 'daemons))
 (maybe-require-package 'dotenv-mode)
 
 (when (maybe-require-package 'uptimes)
   (setq-default uptimes-keep-count 200)
   (add-hook 'after-init-hook (lambda () (require 'uptimes))))
+
+(when (fboundp 'global-eldoc-mode)
+  (add-hook 'after-init-hook 'global-eldoc-mode))
+
+(require 'init-direnv)
+
+
 
 ;; Allow access from emacsclient
 (add-hook 'after-init-hook

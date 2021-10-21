@@ -14,21 +14,13 @@
 
 
 ;;; Standard package repositories
-(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                    (not (gnutls-available-p))))
-       (proto (if no-ssl "http" "https")))
-  (add-to-list 'package-archives
-               (cons "melpa-stable"
-                     (concat proto "//stable.melpa.org/packages/")) t)
-  (add-to-list 'package-archives
-               (cons "melpa-mirror"
-                     (concat proto "://mirrors.tuna.tsinghua.edu.cn/elpa/melpa/")) t)
-  (add-to-list 'package-archives
-               (cons "melpa-stale-mirror"
-                     (concat proto "://mirrors.tuna.tsinghua.edu.cn/elpa/melpa-stable/")) t)
-  (add-to-list 'package-archives
-               (cons "melpa"
-                     (concat proto "://melpa.org/packages/")) t))
+
+(setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
+                         ("org" . "http://orgmode.org/elpa/")
+                         ("melpa" . "https://melpa.org/packages/")))
+;;(setq package-archives '(("gnu" . "https://mirrors.ustc.edu.cn/elpa/gnu/")
+;;                         ("org" . "https://mirrors.ustc.edu.cn/elpa/org/")
+;;                         ("melpa" . "https://mirrors.ustc.edu.cn/elpa/melpa/")))
 
 
 
