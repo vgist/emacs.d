@@ -9,8 +9,6 @@
   (add-hook hook 'turn-on-elisp-slime-nav-mode))
 (add-hook 'emacs-lisp-mode-hook (lambda () (setq mode-name "ELisp")))
 
-;;(setq-default initial-scratch-message
-;;              (concat ";; Happy hacking, " user-login-name " - Emacs ♥ you!\n\n"))
 
 
 (defun sanityinc/headerise-elisp ()
@@ -47,7 +45,7 @@
   (add-hook 'after-init-hook 'ipretty-mode))
 
 
-(defun sanityinc/make-read-only (expression out-buffer-name)
+(defun sanityinc/make-read-only (_expression out-buffer-name &rest _)
   "Enable `view-mode' in the output buffer - if any - so it can be closed with `\"q\"."
   (when (get-buffer out-buffer-name)
     (with-current-buffer out-buffer-name

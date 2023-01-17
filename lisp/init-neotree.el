@@ -3,13 +3,14 @@
 ;;; Code:
 
 (when (maybe-require-package 'neotree)
-  (global-set-key (kbd "C-x n") 'neotree-toggle))
+  (global-set-key (kbd "C-c n") 'neotree-toggle))
 
 (with-eval-after-load 'neotree
   (setq neo-smart-open t
-        neo-theme 'arrow)
-  (setq-default neo-autorefresh t
-                neo-show-hidden-files t))
+        neo-theme 'arrow
+        neo-autorefresh t
+        neo-show-hidden-files t
+        neo-mode-line-type 'none))
 
 (provide 'init-neotree)
 ;;; init-neotree.el ends here

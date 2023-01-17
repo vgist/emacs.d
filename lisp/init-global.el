@@ -3,30 +3,103 @@
 ;;; Code:
 
 
-;; 字体，窗口大小以及位置
+;; 默认设置
+(setq-default
+ display-time-mode t                    ; 显示时间
+ display-time-24hr-format t
+ display-time-day-and-date t
+ ;; case-fold-search t
+ use-file-dialog nil
+ use-dialog-box nil
+ inhibit-startup-screen t               ; 关闭启动画面
+ inhibit-startup-message t
+ initial-buffer-choice t
+ gnus-inhibit-startup-message t
+ visible-bell t                         ; 关闭可见错误提示
+ column-number-mode t                   ; 显示列号
+ ;; confirm-kill-emacs 'y-or-n-p        ; C-x C-c 需确认
+ ediff-split-window-function 'split-window-horizontally
+ ediff-window-setup-function 'ediff-setup-windows-plain
+ indent-tabs-mode nil                   ; 替换tab 为空格
+ select-enable-clipboard t              ; 使用剪贴板来剪贴和粘贴
+ create-lockfiles nil
+ mouse-yank-at-point t                  ; linux 下支持中键粘贴
+ suggest-key-bindings t                 ; 提示快捷键
+ kill-ring-max 200                      ; 设定删除保存记录
+ truncate-lines nil                     ; 不要自动断行
+ truncate-partial-width-windows nil)
+
+
+;; 临时文件相关配置
+(add-hook 'after-init-hook
+          (lambda ()
+            (save-place-mode 1)
+            (defconst emacs-tmp-dir
+              (expand-file-name
+               (format "emacs%d" (user-uid)) temporary-file-directory))
+            (setq backup-directory-alist `((".* . ,emacs-tmp-dir"))
+                  make-backup-files nil ; 不产生临时文件
+                  auto-save-default nil ; 关闭自动保存
+                  auto-save-file-name-transforms `((".*" ,emacs-tmp-dir t))
+                  auto-save-list-file-prefix emacs-tmp-dir)))
+
+
+;; 其他配置
+(add-hook 'after-init-hook
+          (lambda ()
+            (fset 'yes-or-no-p 'y-or-n-p)
+            (global-font-lock-mode 1)   ; 语法高亮
+            (auto-image-file-mode 1)    ; 自动显示图片
+            (global-hl-line-mode 1)     ; 高亮光标所在行
+            (show-paren-mode 1)         ; 高亮括号匹配
+            (setq show-paren-style 'parenthesis)
+            ;; (mouse-avoidance-mode 'animate)
+            (global-auto-revert-mode 1) ; 自动加载其他编辑器修改过的文件
+            (setq global-auto-revert-non-file-buffers t
+                  auto-revert-verbose nil)
+            (with-eval-after-load 'autorevert
+              (diminish 'auto-revert-mode))
+            (transient-mark-mode 1)
+            (windmove-default-keybindings 'shift)
+            (delete-selection-mode 1)))
+
+
+;; 启动后打开 TODO
+;; (setq initial-buffer-choice t)
+;; (defconst my-remember-file
+;;   (expand-file-name "Remember.org" "Documents/Emacs"))
+;; (when (file-exists-p my-remember-file)
+;;   (setq initial-buffer-choice my-remember-file))
+
+
+;; 字体，窗口大小及打开位置
 (when window-system
   (progn
+    ;; 字体
     (when *linux*
-      (set-frame-font "DejaVu Sans Mono 12")
-      (set-fontset-font "fontset-default"
-                        'unicode '("Souce Han Sans CN" . "unicode-bmp")))
+      (set-frame-font "DejaVu Sans Mono 12" "Source Han Sans CN 12")
+      (set-fontset-font t 'unicode "Noto Color Emoji" nil 'prepend))
     (when *is-a-mac*
-      (set-frame-font "Monaco 14")
-      (set-fontset-font t
-                        'unicode (font-spec :name "PingFang SC")))
-    ;; left = 20%, top 0
+      (set-frame-font "Monaco 14" "PingFang SC 14")
+      (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
+    (when *windows*
+      (set-frame-font "Consolas 12" "MicroSoft YaHei 12")
+      (set-fontset-font t 'unicode "Segoe UI Emoji" nil 'prepend)
+      (dolist (charset '(kana han symbol cjk-misc bopomofo))
+        (set-fontset-font (frame-parameter nil 'font)
+                          charset (font-spec :family "MicroSoft YaHei"))))
+    ;; 位置 left 20%, top 0
     (set-frame-position (selected-frame)
                         (/ (x-display-pixel-width) 5)
-                        ;;(/ (x-display-pixel-height) 25)
+                        ;; (/ (x-display-pixel-height) 25)
                         0)
-    ;; width 50%, height 90%
+    ;; 窗口大小 宽 60%, 高 85%
     (add-to-list 'default-frame-alist
-                 (cons 'width (/ (* 5 (x-display-pixel-width))
+                 (cons 'width (/ (* 6 (x-display-pixel-width))
                                  (* 10 (frame-char-width)))))
     (add-to-list 'default-frame-alist
-                 (cons 'height (/ (* 9 (x-display-pixel-height))
-                                  (* 10 (frame-char-height)))))
-    ))
+                 (cons 'height (/ (* 85 (x-display-pixel-height))
+                                  (* 100 (frame-char-height)))))))
 
 
 ;; locales 配置
@@ -44,40 +117,57 @@
                cause interop problems with this Emacs configuration."
                varname))))
 
-(when (fboundp 'set-charset-priority) (set-charset-priority 'unicode))
-(prefer-coding-system 'utf-8)
-(setq locale-coding-system 'utf-8)
-(unless (eq system-type 'windows-nt) (set-selection-coding-system 'utf-8))
+
+;; 像素级滚动
+(if (version< emacs-version "29")
+    (pixel-scroll-mode 1)
+  ((pixel-scroll-precision-mode 1)
+   (setq pixel-scroll-precision-large-scroll-height 40.0
+         pixel-scroll-precision-interpolation-factor 30)))
+(setq scroll-margin 1
+      scroll-conservatively 10000
+      scroll-preserve-screen-position 'always)
 
 
-;; UI 设置
-(setq use-file-dialog nil
-      use-dialog-box nil
-      inhibit-startup-screen t
-      inhibit-startup-message t         ;; 关闭启动画面
-      gnus-inhibit-startup-message t
-      visible-bell t                    ;; 关闭出错时的提示声
-      default-tab-width 4               ;; 每次缩进4个空格
-      mouse-yank-at-point t             ;; 支持中键粘贴
-      x-select-enable-clipboard t       ;; emacs和外部程序的粘贴
-      default-fill-column 80            ;; 默认显示80列就换行
-      suggest-key-bindings t            ;; 若命令有组合键，则提示
-      kill-ring-max 200                 ;; 设定删除保存记录
-      ;;confirm-kill-emacs 'y-or-n-p      ;; C-x X-c 时需确认
-      ;;user-full-name "nil"
-      ;;user-mail-address "email"
-      )
+(when (fboundp 'set-charset-priority)
+  (set-charset-priority 'unicode)
+  (prefer-coding-system 'cp936)
+  (prefer-coding-system 'utf-8)
+  (setq locale-coding-system 'utf-8
+        system-time-locale "C")
+  (unless *windows* (set-selection-coding-system 'utf-8)))
+
+
+;; 某些模式关闭行号
+(when (fboundp 'linum-mode)
+  (add-hook 'prog-mode-hook 'linum-mode)
+  (add-hook 'text-mode-hook 'linum-mode))
+
+
+;; 显示列宽指示器
+(when (boundp 'display-fill-column-indicator)
+  (setq-default fill-column 78)
+  ;; (setq-default indicate-buffer-boundaries 'left)
+  (setq-default display-fill-column-indicator-character ?\u254e)
+  (add-hook 'prog-mode-hook 'display-fill-column-indicator-mode))
 
 
 (when (fboundp 'tooltip-mode) (tooltip-mode -1))
 (when (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (when (fboundp 'set-scroll-bar-mode) (set-scroll-bar-mode nil))
-(unless (and *is-a-mac* window-system)
-            (menu-bar-mode -1))
+(when (or *linux* *windows* (not (display-graphic-p)))
+  (when (fboundp 'menu-bar-mode) (menu-bar-mode -1)))
 
 (let ((no-border '(internal-border-width . 0)))
   (add-to-list 'default-frame-alist no-border)
   (add-to-list 'initial-frame-alist no-border))
+
+;; 内置的括号智能补全与智能锁进
+;; (require 'electric)
+(when (fboundp 'electric-pair-mode)
+  (add-hook 'after-init-hook 'electric-pair-mode))
+(when (fboundp 'electric-indent-mode)
+  (add-hook 'after-init-hook 'electric-indent-mode))
 
 
 ;; 窗体的透明度
@@ -109,25 +199,26 @@
 
 
 ;; 快捷键配置
-(global-set-key (kbd "C-SPC") 'nil)                     ; 注销 ctrl_space
-(global-set-key (kbd "C-x C-r") 'revert-buffer)         ; 重载当前文件
-(global-set-key (kbd "C-k") 'kill-this-buffer)          ; 关闭当前 buffer
-(global-set-key (kbd "C--") 'split-window-vertically)   ; 左右分割当前窗口
-(global-set-key (kbd "C-=") 'split-window-horizontally) ; 上下分割当前窗口
-(global-set-key (kbd "s-0") 'text-scale-mode)           ; 恢复文字默认大小
-(global-set-key (kbd "s--") 'text-scale-decrease)       ; 缩小文字
-(global-set-key (kbd "s-=") 'text-scale-increase)       ; 放大文字
-(global-set-key [f10] 'other-window)                    ; 当前窗口间跳转
+(global-set-key (kbd "C-SPC") 'nil)
+(global-set-key (kbd "C-x C-r") 'revert-buffer)                 ; 重载当前文件
+(global-set-key (kbd "C-x -") 'split-window-vertically)         ; 左右分割窗口
+(global-set-key (kbd "C-x =") 'split-window-horizontally)       ; 上下分割窗口
+(global-set-key (kbd "C-c 0") 'text-scale-mode)                 ; 恢复文字大小
+(global-set-key (kbd "C-c -") 'text-scale-decrease)             ; 缩小文字
+(global-set-key (kbd "C-c =") 'text-scale-increase)             ; 放大文字
 (global-set-key (kbd "C-s-l") 'enlarge-window-horizontally)
 (global-set-key (kbd "C-s-h") 'shrink-window-horizontally)
 (global-set-key (kbd "C-s-j") 'shrink-window)
 (global-set-key (kbd "C-s-k") 'enlarge-window)
+(global-set-key (kbd "C-x n") 'next-buffer)                     ; 前一缓冲区
+(global-set-key (kbd "C-x p") 'previous-buffer)                 ; 后一缓冲区
 ;; bound tab to C-tab
-(global-set-key [C-tab] '(lambda () (interactive) (insert-char 9 1)))
+(global-set-key [C-tab] (lambda () (interactive) (insert-char 9 1)))
 
 
-;; 格式化整个文件并绑定到C-F9键
+;; 格式化整个文件并绑定到 C-F9 键
 (defun indent-whole ()
+  "Indenting the whole file."
   (interactive)
   (indent-region (point-min) (point-max))
   (message "format successfully"))
@@ -142,75 +233,22 @@
 
 ;; MacOS
 (when *is-a-mac*
-  (setq dired-use-ls-dired nil)         ; ls --dired issue
-  (setq mac-command-modifier 'super     ; command as super
+  (setq dired-use-ls-dired nil          ; ls --dired
+        mac-command-modifier 'super     ; command as super
         mac-option-modifier 'meta       ; option as meta
         ;; mac-option-key-is-meta
         ;; mac-command-key-is-meta
         )
   ;; Make mouse wheel / trackpad scrolling less jerky
-  (setq mouse-wheel-scroll-amount '(1
-                                    ((shift) . 5)
-                                    ((control))))
+  (setq mouse-wheel-scroll-amount '(1 ((shift) . 5) ((control))))
   (dolist (multiple '("" "double-" "triple-"))
     (dolist (direction '("right" "left"))
       (global-set-key
        (read-kbd-macro
         (concat "<" multiple "wheel-" direction ">")) 'ignore)))
-  ;; Command-Control-f to toggle fullscreen mode
+  ;; Control-Command-f to toggle fullscreen mode
   (fboundp 'toggle-frame-fullscreen)
-  (global-set-key (kbd "C-s-f") 'toggle-frame-fullscreen)
-  )
-
-
-;; 某些模式关闭行号
-(global-linum-mode nil)
-(setq linum-mode-except-modes
-      '(ansi-term-mode
-        eshell-mode
-        erc-mode
-        shell-mode
-        term-mode
-        vterm-mode))
-(defadvice linum-on (around linum-on-except-for-modes)
-  "Stop the load of linum-mode for some major modes."
-  (unless (or (minibufferp) (member major-mode linum-mode-except-modes))
-    ad-do-it))
-(ad-activate 'linum-on)
-
-
-;; 其他配置
-(defun personal-clutter()
-  "Personal clutter"
-  (display-time-mode 1)                     ; 显示时间
-  (setq display-time-24hr-format t)
-  (setq display-time-day-and-date t)
-  (fset 'yes-or-no-p 'y-or-n-p)             ; y/n means yes/no
-  (global-font-lock-mode t)                 ; 语法高亮
-  (auto-image-file-mode t)                  ; 图片显示
-  (column-number-mode t)                    ; 显示列号
-  (global-hl-line-mode 1)                   ; 高亮当前行
-  (show-paren-mode t)                       ; 显示括号匹配
-  (setq show-paren-style 'parentheses)
-  (require 'electric)                       ; 内置的智能自动补全括号
-  (electric-pair-mode t)
-  (electric-indent-mode t)                  ; 编辑时智能缩进，类似于C-j的效果
-  ;;(electric-layout-mode t)                ; 特定条件下插入新行
-  ;;(mouse-avoidance-mode 'animate)         ; 鼠标指针自动避让
-  ;;(pc-selection-mode)                     ; shift选择
-  (windmove-default-keybindings 'shift)     ; shift + 箭头
-  (setq scroll-margin 1                     ; 光标上下1行处开始滚动
-        scroll-conservatively 10000)
-  ;;(setq make-backup-files nil)            ; 不产生临时备份文件
-  (defconst emacs-tmp-dir
-            (expand-file-name
-              (format "emacs%d" (user-uid)) temporary-file-directory))
-  (setq backup-directory-alist `((".*" . ,emacs-tmp-dir)))
-  (setq auto-save-file-name-transforms `((".*" ,emacs-tmp-dir t)))
-  (setq auto-save-list-file-prefix emacs-tmp-dir)
-  (save-place-mode 1)
-  )
-(add-hook 'after-init-hook 'personal-clutter)
+  (global-set-key (kbd "C-s-f") 'toggle-frame-fullscreen))
 
 
 (provide 'init-global)

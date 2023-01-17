@@ -18,9 +18,9 @@
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                          ("org" . "http://orgmode.org/elpa/")
                          ("melpa" . "https://melpa.org/packages/")))
-;;(setq package-archives '(("gnu" . "https://mirrors.ustc.edu.cn/elpa/gnu/")
-;;                         ("org" . "https://mirrors.ustc.edu.cn/elpa/org/")
-;;                         ("melpa" . "https://mirrors.ustc.edu.cn/elpa/melpa/")))
+;; (setq package-archives '(("gnu" . "https://mirrors.ustc.edu.cn/elpa/gnu/")
+;;                          ("org" . "https://mirrors.ustc.edu.cn/elpa/org/")
+;;                          ("melpa" . "https://mirrors.ustc.edu.cn/elpa/melpa/")))
 
 
 
@@ -35,6 +35,8 @@
   "Install given PACKAGE, optionally requiring MIN-VERSION.
 If NO-REFRESH is non-nil, the available package lists will not be
 re-downloaded in order to locate PACKAGE."
+  (when (stringp min-version)
+    (setq min-version (version-to-list min-version)))
   (or (package-installed-p package min-version)
       (let* ((known (cdr (assoc package package-archive-contents)))
              (best (car (sort known (lambda (a b)

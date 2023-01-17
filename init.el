@@ -19,6 +19,7 @@
 (defconst *spell-check-support-enabled* nil) ;; Enable with t if you prefer
 (defconst *is-a-mac* (eq system-type 'darwin))
 (defconst *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)))
+(defconst *windows* (eq system-type 'windows-nt))
 
 ;; Adjust garbage collection thresholds during startup, and thereafter
 (let ((normal-gc-cons-threshold (* 20 1024 1024))
@@ -28,7 +29,7 @@
             (lambda () (setq gc-cons-threshold normal-gc-cons-threshold))))
 
 ;; Bootstrap config
-(setq custom-file (locate-user-emacs-file "custom.el"))
+(setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (require 'init-utils)
 (require 'init-site-lisp) ;; Must come before elpa, as it may provide package.el
 ;; Calls (package-initialize)
@@ -47,25 +48,27 @@
 (require 'init-xterm)
 (require 'init-themes)
 (require 'init-dired)
+(require 'init-uniquify)
 (require 'init-ibuffer)
 (require 'init-flycheck)
+(require 'init-eglot)
 (require 'init-whitespace)
+(require 'init-minimap)
+(require 'init-tabbar)
 
-(require 'init-ivy)
 (require 'init-minibuffer)
-(require 'init-company)
+(require 'init-corfu)
 (require 'init-mmm)
 (require 'init-neotree)
 
-(require 'init-git)
 (require 'init-projectile)
 
 (require 'init-compile)
+(require 'init-org)
 (require 'init-css)
 (require 'init-csv)
 (require 'init-docker)
 (require 'init-markdown)
-(require 'init-erlang)
 (require 'init-php)
 (require 'init-python)
 (require 'init-rails)
@@ -78,7 +81,7 @@
 (require 'init-slime)
 (require 'init-common-lisp)
 
-(require 'init-pyim)
+;; (require 'init-pyim)
 
 (require 'init-folding)
 (require 'init-erc)

@@ -3,7 +3,7 @@ A reasonable Emacs config
 ## Installation
 
 ```
-git clone https://github.com/vgist/emacs.d.git ~/.emacs.d
+git clone https://github.com/vgist/dot-emacs.git ~/.config/emacs
 ```
 
 Upon starting up Emacs for the first time, further third-party

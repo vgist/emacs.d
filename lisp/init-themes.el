@@ -2,54 +2,38 @@
 ;;; Commentary:
 ;;; Code:
 
-(require-package 'github-theme)
-(require-package 'monokai-theme)
+(require-package 'spacemacs-theme)
+
 
 ;; Auto load gui appearance color by time
-(setq current-theme (load-theme 'github t))
-(defun toggle-theme ()
+(setq current-theme (load-theme 'spacemacs-light t))
+(defun myinc/toggle-theme ()
   "Toggle appearance color between light mode and dark mode."
   (setq hour (string-to-number (substring (current-time-string) 11 13)))
-  (if (member hour (number-sequence 6 17))    ;; 6:00 - 17:59
-    (setq now '(load-theme 'github t))
-    (setq now '(load-theme 'monokai t)))
-  (if (equal now current-theme)
-    nil
-    (setq monokai-background  "#2B3E50"
-          monokai-comments    "#8F908A"
-          monokai-highlight   "#405160"
-          current-theme now)
-    (eval now)))
+  (if (member hour (number-sequence 6 17))      ; 6:00 - 17:59
+      (setq now '(load-theme 'spacemacs-light t))
+    (setq now '(load-theme 'spacemacs-dark t)))
+  (if (equal now current-theme) nil (setq current-theme now) (eval now)))
 (if (display-graphic-p)
+    (add-hook 'after-init-hook
+              (lambda () (run-with-timer 0 3600 'myinc/toggle-theme)))
   (add-hook 'after-init-hook
-            (lambda () (run-with-timer 0 3600 'toggle-theme)))
-  (add-hook 'after-init-hook
-            (lambda () (load-theme 'monokai t))))
+            (lambda () (load-theme 'spacemacs-dark t))))
 
-;; Adjust minibuffer color
-(add-hook 'minibuffer-setup-hook
-          (lambda ()
-            (make-local-variable 'face-remapping-alist)
-            (add-to-list
-              'face-remapping-alist
-              '(ivy-current-match
-                 (:background "#8F908A" :inherit bold :underline nil)
-                ivy-minibuffer-match-face-2
-                 (:foreground "#333333" :background "#8F908A" :inherit bold)))))
 
 ;; switch appearance colors by F5
-;;(when (display-graphic-p)
-;;  (defun toggle-theme ()
-;;    "Toggle between light mode and dark mode."
-;;    (interactive)
-;;    (if (eq (car custom-enabled-themes) 'github)
-;;      (disable-theme 'github)
-;;      (load-theme 'github)
-;;  (global-set-key [f5] 'toggle-theme))
+;; (when (display-graphic-p)
+;;   (defun myinc/toggle-theme ()
+;;     "Toggle between light mode and dark mode."
+;;     (if (eq (car custom-enabled-themes) 'spacemacs-dark)
+;;         (disable-theme 'spacemacs-dark)
+;;       (load-theme 'spacemacs-dark))))
+;; (global-set-key [f5] 'my/inc/toggle-theme)
 
 
 ;; Unset background color in terminal
 (defun on-after-init (&optional frame)
+  "Unset Background colours in terminal FRAME."
   (or frame (setq frame (selected-frame)))
   (unless (display-graphic-p frame)
     (set-face-background 'default "unspecified-bg" frame)
@@ -64,6 +48,7 @@
 ;; first-time startup on Emacs > 26.3.
 (setq custom-safe-themes t)
 
+
 ;; Ensure that themes will be applied even if they have not been customized
 (defun reapply-themes ()
   "Forcibly load the themes listed in `custom-enabled-themes'."
@@ -71,7 +56,7 @@
     (unless (custom-theme-p theme)
       (load-theme theme)))
   (custom-set-variables
-    `(custom-enabled-themes (quote ,custom-enabled-themes))))
+   `(custom-enabled-themes (quote ,custom-enabled-themes))))
 (add-hook 'after-init-hook 'reapply-themes)
 
 (when (maybe-require-package 'dimmer)
