@@ -22,6 +22,14 @@ the third-party packages regularly too:
 You should usually restart Emacs after pulling changes or updating
 packages so that they can take effect.
 
+## tree-sitter warning
+
+> Warning (treesit): Cannot activate tree-sitter, because language grammar for rust is unavailable (not-found)
+
+    M-x treesit-install-language-grammar RET rust
+
+more: https://www.masteringemacs.org/article/how-to-get-started-tree-sitter
+
 ## Thanks
 
 <https://github.com/purcell/emacs.d>

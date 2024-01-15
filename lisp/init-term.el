@@ -92,5 +92,5 @@
                                 (ansi-term (getenv "SHELL"))))
 
 
-(provide 'init-xterm)
+(provide 'init-term)
 ;;; init-xterm.el ends here

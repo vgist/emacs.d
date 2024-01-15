@@ -47,7 +47,9 @@
 ;; 其他配置
 (add-hook 'after-init-hook
           (lambda ()
-            (fset 'yes-or-no-p 'y-or-n-p)
+            (if (boundp 'use-short-answers)
+                (setq use-short-answers t)
+              (fset 'yes-or-no-p 'y-or-n-p))
             (global-font-lock-mode 1)   ; 语法高亮
             (auto-image-file-mode 1)    ; 自动显示图片
             (global-hl-line-mode 1)     ; 高亮光标所在行
@@ -120,10 +122,8 @@
 
 ;; 像素级滚动
 (if (version< emacs-version "29")
-    (pixel-scroll-mode 1)
-  ((pixel-scroll-precision-mode 1)
-   (setq pixel-scroll-precision-large-scroll-height 40.0
-         pixel-scroll-precision-interpolation-factor 30)))
+  (pixel-scroll-mode 1)
+  (pixel-scroll-precision-mode 1))
 (setq scroll-margin 1
       scroll-conservatively 10000
       scroll-preserve-screen-position 'always)
@@ -148,7 +148,7 @@
 (when (boundp 'display-fill-column-indicator)
   (setq-default fill-column 78)
   ;; (setq-default indicate-buffer-boundaries 'left)
-  (setq-default display-fill-column-indicator-character ?\u254e)
+  (setq-default display-fill-column-indicator-character ?┊)
   (add-hook 'prog-mode-hook 'display-fill-column-indicator-mode))
 
 

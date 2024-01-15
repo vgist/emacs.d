@@ -9,7 +9,7 @@
 ;; Produce backtraces when errors occur: can be helpful to diagnose startup issues
 ;;(setq debug-on-error t)
 
-(let ((minver "26.1"))
+(let ((minver "27.1"))
   (when (version< emacs-version minver)
     (error "Emacs v%s or higher is required" minver)))
 
@@ -21,12 +21,9 @@
 (defconst *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)))
 (defconst *windows* (eq system-type 'windows-nt))
 
-;; Adjust garbage collection thresholds during startup, and thereafter
-(let ((normal-gc-cons-threshold (* 20 1024 1024))
-      (init-gc-cons-threshold (* 128 1024 1024)))
-  (setq gc-cons-threshold init-gc-cons-threshold)
-  (add-hook 'emacs-startup-hook
-            (lambda () (setq gc-cons-threshold normal-gc-cons-threshold))))
+
+;; Adjust garbage collection threshold for early startup (see use of gcmh below)
+(setq gc-cons-threshold (* 128 1024 1024))
 
 ;; Bootstrap config
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
@@ -35,6 +32,17 @@
 ;; Calls (package-initialize)
 (require 'init-elpa)      ;; Machinery for installing required packages
 (require 'init-exec-path) ;; Set up $PATH
+
+
+;; General performance tuning
+(when (require-package 'gcmh)
+  (setq gcmh-high-cons-threshold (* 128 1024 1024))
+  (add-hook 'after-init-hook (lambda ()
+                               (gcmh-mode)
+                               (diminish 'gcmh-mode))))
+
+(setq jit-lock-defer-time 0)
+
 
 ;; Allow users to provide an optional "init-preload-local.el"
 (require 'init-preload-local nil t)
@@ -45,7 +53,7 @@
 
 (require 'init-frame-hooks)
 (require 'init-global)
-(require 'init-xterm)
+(require 'init-term)
 (require 'init-themes)
 (require 'init-dired)
 (require 'init-uniquify)
@@ -66,7 +74,6 @@
 (require 'init-compile)
 (require 'init-org)
 (require 'init-css)
-(require 'init-csv)
 (require 'init-docker)
 (require 'init-markdown)
 (require 'init-php)
@@ -75,11 +82,12 @@
 (require 'init-ruby)
 (require 'init-rust)
 (require 'init-yaml)
+(require 'init-terraform)
+(require 'init-nix)
 
 (require 'init-paredit)
 (require 'init-lisp)
-(require 'init-slime)
-(require 'init-common-lisp)
+(require 'init-sly)
 
 ;; (require 'init-pyim)
 
@@ -99,6 +107,10 @@
 
 (require 'init-direnv)
 
+(when (and (require 'treesit nil t)
+           (fboundp 'treesit-available-p)
+           (treesit-available-p))
+  (require 'init-treesitter))
 
 
 ;; Allow access from emacsclient
