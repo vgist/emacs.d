@@ -7,28 +7,27 @@
 
 
 ;; Connect to the networks with M-x ierc
-(defun myinc/ierc ()
+(defun myinc/erc-connect ()
   "Start connecting to IRC."
   (interactive)
   ;; Load authentication info from an external source.
   ;; Put sensitive nick passwords and the like in file.
   ;; With content:
-  ;; (setq erc-nick "your-nick")
-  ;; (setq erc-password "your-password")
+  ;; (setq erc-sasl-user "your-user")
+  ;; (setq erc-sasl-password "your-password")
   ;; (setq erc-autojoin-channels-alist '(("libera.chat" "#gentoo")))
+  (require 'erc-sasl)
+  (add-to-list 'erc-modules 'sasl)
   (when (file-exists-p (locate-user-emacs-file ".erc-auth.el"))
-    (load (locate-user-emacs-file ".erc-auth.el"))
-    (let
-        ((password-cache nil))
-      (erc-tls
-       :server "irc.libera.chat" :port 6697
-       :nick erc-nick
-       :password erc-password
-       ;; :password (password-read (format "Password for Libera Chat? "))
-       ))
-    ))
+    (load (locate-user-emacs-file ".erc-auth.el")))
+  (let ((password-cache nil))
+    (erc-tls
+      :server "irc.libera.chat" :port 6697
+      :nick erc-sasl-user
+      ;; :password (password-read (format "Password for Libera Chat? "))
+      )))
 
-(global-set-key (kbd "C-c e") 'myinc/ierc)
+(global-set-key (kbd "C-c e") 'myinc/erc-connect)
 
 
 ;; Common settings

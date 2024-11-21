@@ -84,6 +84,12 @@
 (require 'init-yaml)
 (require 'init-terraform)
 (require 'init-nix)
+(maybe-require-package 'just-mode)
+(when (maybe-require-package 'just-ts-mode)
+  ;; Undo overly-optimistic autoloading, so that things still work in
+  ;; Emacs 29 without treesitter
+  (sanityinc/remove-auto-mode  'just-ts-mode))
+(maybe-require-package 'justl)
 
 (require 'init-paredit)
 (require 'init-lisp)

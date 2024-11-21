@@ -18,10 +18,7 @@
 (setq package-archives '(("gnu" . "https://elpa.gnu.org/packages/")
                          ("org" . "http://orgmode.org/elpa/")
                          ("melpa" . "https://melpa.org/packages/")))
-;; (setq package-archives '(("gnu" . "https://mirrors.ustc.edu.cn/elpa/gnu/")
-;;                          ("org" . "https://mirrors.ustc.edu.cn/elpa/org/")
-;;                          ("melpa" . "https://mirrors.ustc.edu.cn/elpa/melpa/")))
-
+(add-to-list 'package-unsigned-archives "melpa")
 
 
 ;; Work-around for https://debbugs.gnu.org/cgi/bugreport.cgi?bug=34341

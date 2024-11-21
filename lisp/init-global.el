@@ -148,7 +148,6 @@
 (when (boundp 'display-fill-column-indicator)
   (setq-default fill-column 78)
   ;; (setq-default indicate-buffer-boundaries 'left)
-  (setq-default display-fill-column-indicator-character ?┊)
   (add-hook 'prog-mode-hook 'display-fill-column-indicator-mode))
 
 
