@@ -37,7 +37,7 @@
             (defconst emacs-tmp-dir
               (expand-file-name
                (format "emacs%d" (user-uid)) temporary-file-directory))
-            (setq backup-directory-alist `((".* . ,emacs-tmp-dir"))
+            (setq backup-directory-alist `((".*" . ,emacs-tmp-dir))
                   make-backup-files nil ; 不产生临时文件
                   auto-save-default nil ; 关闭自动保存
                   auto-save-file-name-transforms `((".*" ,emacs-tmp-dir t))

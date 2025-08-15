@@ -111,10 +111,10 @@
           (lambda (server nick)
             (add-hook 'erc-server-NOTICE-hook 'erc-auto-query)))
 
-(defadvice save-buffers-kill-emacs (before save-logs (arg) activate)
-  (save-some-buffers t (lambda ()
-                         (when (and (eq major-mode 'erc-mode)
-                                    (not (null buffer-file-name)))))))
+
+(defadvice save-buffers-kill-emacs
+           (before save-logs-before-save-buffers-kill-emacs (&rest args) activate)
+           'erc-save-buffers-in-logs)
 
 
 (add-hook 'erc-insert-post-hook 'erc-save-buffer-in-logs)
