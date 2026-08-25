@@ -9,7 +9,7 @@
 ;; Produce backtraces when errors occur: can be helpful to diagnose startup issues
 ;;(setq debug-on-error t)
 
-(let ((minver "27.1"))
+(let ((minver "28.1"))
   (when (version< emacs-version minver)
     (error "Emacs v%s or higher is required" minver)))
 
@@ -58,14 +58,12 @@
 (require 'init-dired)
 (require 'init-uniquify)
 (require 'init-ibuffer)
-(require 'init-flycheck)
+(require 'init-flymake)
 (require 'init-eglot)
 (require 'init-whitespace)
 (require 'init-minimap)
-(require 'init-tabbar)
 
 (require 'init-minibuffer)
-(require 'init-corfu)
 (require 'init-mmm)
 (require 'init-neotree)
 
@@ -74,15 +72,9 @@
 (require 'init-compile)
 (require 'init-org)
 (require 'init-css)
-(require 'init-docker)
 (require 'init-markdown)
-(require 'init-php)
-(require 'init-python)
-(require 'init-rails)
-(require 'init-ruby)
 (require 'init-rust)
 (require 'init-yaml)
-(require 'init-terraform)
 (require 'init-nix)
 (maybe-require-package 'just-mode)
 (when (maybe-require-package 'just-ts-mode)
@@ -93,7 +85,6 @@
 
 (require 'init-paredit)
 (require 'init-lisp)
-(require 'init-sly)
 
 ;; (require 'init-pyim)
 
