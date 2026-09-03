@@ -1,4 +1,4 @@
-;;; init-xterm.el --- Integrate with terminals such as xterm -*- lexical-binding: t -*-
+;;; init-term.el --- Integrate with terminals such as xterm -*- lexical-binding: t -*-
 ;;; Commentary:
 ;;; Code:
 
@@ -24,7 +24,7 @@
 (setq eshell-banner-message "")
 
 
-(with-eval-after-load 'eshell-mode
+(with-eval-after-load 'eshell
   (add-hook 'eshell-pre-command-hook 'eshell-save-some-history)
   (add-to-list 'eshell-output-filter-functions 'eshell-truncate-buffer)
   (setq eshell-history-size         10000
@@ -55,17 +55,16 @@
 (add-hook 'after-make-console-frame-hooks (lambda () (setq line-spacing 0)))
 
 
-(defadvice
-    term-sentinel (around do.term/close-on-exit-advice (proc msg))
-  "Close window or buffer on exit."
-  (if (and (memq (process-status proc) '(signal exit)) (not (one-window-p)))
-      (let* ((buffer (process-buffer proc)))
-        ad-do-it (delete-window) (kill-buffer buffer))
-    (let* ((buffer (process-buffer proc)))
-      ad-do-it (kill-buffer buffer)))
-  ad-do-it)
-
-(ad-activate 'term-sentinel)
+(defun myinc/term-on-exit (orig-fun proc msg)
+  "Run ORIG-FUN, then close the window and buffer when process ends."
+  (funcall orig-fun proc msg)
+  (when (memq (process-status proc) '(signal exit))
+    (let ((buffer (process-buffer proc)))
+      (unless (one-window-p)
+        (delete-window))
+      (when (buffer-live-p buffer)
+        (kill-buffer buffer)))))
+(advice-add 'term-sentinel :around #'myinc/term-on-exit)
 
 
 (defun myinc/eshell-quit () "Close window on eshell exit."
@@ -89,8 +88,8 @@
 (global-set-key (kbd "C-x t") (lambda ()
                                 (interactive)
                                 (myinc/bottom-window)
-                                (ansi-term (getenv "SHELL"))))
+                                (ansi-term (or (getenv "SHELL") shell-file-name))))
 
 
 (provide 'init-term)
-;;; init-xterm.el ends here
+;;; init-term.el ends here

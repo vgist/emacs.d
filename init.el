@@ -21,10 +21,6 @@
 (defconst *linux* (or (eq system-type 'gnu/linux) (eq system-type 'linux)))
 (defconst *windows* (eq system-type 'windows-nt))
 
-
-;; Adjust garbage collection threshold for early startup (see use of gcmh below)
-(setq gc-cons-threshold (* 128 1024 1024))
-
 ;; Bootstrap config
 (setq custom-file (expand-file-name "custom.el" user-emacs-directory))
 (require 'init-utils)
@@ -59,7 +55,6 @@
 (require 'init-uniquify)
 (require 'init-ibuffer)
 (require 'init-flymake)
-(require 'init-eglot)
 (require 'init-whitespace)
 (require 'init-minimap)
 
@@ -67,15 +62,8 @@
 (require 'init-mmm)
 (require 'init-neotree)
 
-(require 'init-projectile)
-
 (require 'init-compile)
-(require 'init-org)
-(require 'init-css)
-(require 'init-markdown)
-(require 'init-rust)
 (require 'init-yaml)
-(require 'init-nix)
 (maybe-require-package 'just-mode)
 (when (maybe-require-package 'just-ts-mode)
   ;; Undo overly-optimistic autoloading, so that things still work in
@@ -104,12 +92,6 @@
 
 (require 'init-direnv)
 
-(when (and (require 'treesit nil t)
-           (fboundp 'treesit-available-p)
-           (treesit-available-p))
-  (require 'init-treesitter))
-
-
 ;; Allow access from emacsclient
 (add-hook 'after-init-hook
           (lambda ()
@@ -125,7 +107,8 @@
 (require 'init-local nil t)
 
 (when *is-a-mac*
-  (delete-file "~/Library/Colors/Emacs.clr"))
+  (when (file-exists-p "~/Library/Colors/Emacs.clr")
+    (delete-file "~/Library/Colors/Emacs.clr")))
 
 (provide 'init)
 ;;; init.el ends here

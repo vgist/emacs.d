@@ -5,7 +5,6 @@
 
 ;; 默认设置
 (setq-default
- display-time-mode t                    ; 显示时间
  display-time-24hr-format t
  display-time-day-and-date t
  ;; case-fold-search t
@@ -31,22 +30,20 @@
 
 
 ;; 临时文件相关配置
+(defconst emacs-tmp-dir
+  (expand-file-name (format "emacs%d" (user-uid)) temporary-file-directory))
 (add-hook 'after-init-hook
           (lambda ()
             (save-place-mode 1)
-            (defconst emacs-tmp-dir
-              (expand-file-name
-               (format "emacs%d" (user-uid)) temporary-file-directory))
-            (setq backup-directory-alist `((".*" . ,emacs-tmp-dir))
-                  make-backup-files nil ; 不产生临时文件
+            (setq make-backup-files nil ; 不产生临时文件
                   auto-save-default nil ; 关闭自动保存
-                  auto-save-file-name-transforms `((".*" ,emacs-tmp-dir t))
                   auto-save-list-file-prefix emacs-tmp-dir)))
 
 
 ;; 其他配置
 (add-hook 'after-init-hook
           (lambda ()
+            (display-time-mode 1)       ; 显示时间
             (if (boundp 'use-short-answers)
                 (setq use-short-answers t)
               (fset 'yes-or-no-p 'y-or-n-p))
@@ -75,21 +72,21 @@
 
 
 ;; 字体，窗口大小及打开位置
-(when window-system
+(when (display-graphic-p)
   (progn
     ;; 字体
     (when *linux*
-      (set-frame-font "DejaVu Sans Mono 12" "Source Han Sans CN 12")
-      (set-fontset-font t 'unicode "Noto Color Emoji" nil 'prepend))
+      (set-frame-font "DejaVu Sans Mono 12")
+      (set-fontset-font t 'unicode "Noto Color Emoji" nil 'prepend)
+      (set-fontset-font t 'han "Source Han Sans CN" nil 'prepend))
     (when *is-a-mac*
-      (set-frame-font "Monaco 14" "PingFang SC 14")
-      (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend))
+      (set-frame-font "Monaco 14")
+      (set-fontset-font t 'unicode "Apple Color Emoji" nil 'prepend)
+      (set-fontset-font t 'han "PingFang SC" nil 'prepend))
     (when *windows*
-      (set-frame-font "Consolas 12" "MicroSoft YaHei 12")
+      (set-frame-font "Consolas 12")
       (set-fontset-font t 'unicode "Segoe UI Emoji" nil 'prepend)
-      (dolist (charset '(kana han symbol cjk-misc bopomofo))
-        (set-fontset-font (frame-parameter nil 'font)
-                          charset (font-spec :family "MicroSoft YaHei"))))
+      (set-fontset-font t 'han "Microsoft YaHei" nil 'prepend))
     ;; 位置 left 20%, top 0
     (set-frame-position (selected-frame)
                         (/ (x-display-pixel-width) 5)
@@ -131,17 +128,15 @@
 
 (when (fboundp 'set-charset-priority)
   (set-charset-priority 'unicode)
-  (prefer-coding-system 'cp936)
   (prefer-coding-system 'utf-8)
   (setq locale-coding-system 'utf-8
-        system-time-locale "C")
-  (unless *windows* (set-selection-coding-system 'utf-8)))
+        system-time-locale "C"))
 
 
 ;; 某些模式关闭行号
-(when (fboundp 'linum-mode)
-  (add-hook 'prog-mode-hook 'linum-mode)
-  (add-hook 'text-mode-hook 'linum-mode))
+(when (fboundp 'display-line-numbers-mode)
+  (add-hook 'prog-mode-hook 'display-line-numbers-mode)
+  (add-hook 'text-mode-hook 'display-line-numbers-mode))
 
 
 ;; 显示列宽指示器
@@ -216,12 +211,12 @@
 
 
 ;; 格式化整个文件并绑定到 C-F9 键
-(defun indent-whole ()
+(defun myinc/indent-whole ()
   "Indenting the whole file."
   (interactive)
   (indent-region (point-min) (point-max))
   (message "format successfully"))
-(global-set-key [C-f9] 'indent-whole)
+(global-set-key [C-f9] 'myinc/indent-whole)
 
 (defun my-toggle-selective-display (column)
   (interactive "P")
@@ -246,8 +241,8 @@
        (read-kbd-macro
         (concat "<" multiple "wheel-" direction ">")) 'ignore)))
   ;; Control-Command-f to toggle fullscreen mode
-  (fboundp 'toggle-frame-fullscreen)
-  (global-set-key (kbd "C-s-f") 'toggle-frame-fullscreen))
+  (when (fboundp 'toggle-frame-fullscreen)
+    (global-set-key (kbd "C-s-f") 'toggle-frame-fullscreen)))
 
 
 (provide 'init-global)

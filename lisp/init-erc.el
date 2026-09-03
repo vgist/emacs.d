@@ -20,15 +20,19 @@
   (add-to-list 'erc-modules 'sasl)
   (when (file-exists-p (locate-user-emacs-file ".erc-auth.el"))
     (load (locate-user-emacs-file ".erc-auth.el")))
-  (let ((password-cache nil))
-    (erc-tls
-      :server "irc.libera.chat" :port 6697
-      :nick erc-sasl-user
-      ;; :password (password-read (format "Password for Libera Chat? "))
-      )))
+  (erc-tls
+    :server "irc.libera.chat" :port 6697
+    :nick erc-sasl-user
+    ;; :password (password-read (format "Password for Libera Chat? "))
+    ))
 
 (global-set-key (kbd "C-c e") 'myinc/erc-connect)
 
+
+;; Disable global-hl-line-mode in ERC buffers (named so hook doesn't accumulate)
+(defun myinc/erc-disable-hl-line ()
+  "Disable global-hl-line-mode in this ERC buffer."
+  (setq-local global-hl-line-mode nil))
 
 ;; Common settings
 (defun myinc/messy-settings-for-erc()
@@ -60,7 +64,7 @@
         erc-rename-buffers t)
 
   ;; Disable highlighting line
-  (add-hook 'erc-mode-hook (lambda () (setq-local global-hl-line-mode nil)))
+  (add-hook 'erc-mode-hook #'myinc/erc-disable-hl-line)
 
   ;; Auto join
   (require 'erc-join)
@@ -112,9 +116,12 @@
             (add-hook 'erc-server-NOTICE-hook 'erc-auto-query)))
 
 
-(defadvice save-buffers-kill-emacs
-           (before save-logs-before-save-buffers-kill-emacs (&rest args) activate)
-           'erc-save-buffers-in-logs)
+(defun myinc/erc-save-logs-before-kill (&rest _args)
+  "Save ERC logs before killing Emacs, but only if ERC is loaded."
+  (when (and (featurep 'erc)
+             (fboundp 'erc-save-buffers-in-logs))
+    (erc-save-buffers-in-logs)))
+(advice-add 'save-buffers-kill-emacs :before #'myinc/erc-save-logs-before-kill)
 
 
 (add-hook 'erc-insert-post-hook 'erc-save-buffer-in-logs)
@@ -125,22 +132,6 @@
               (set (make-variable-buffer-local
                     'coding-system-for-write)
                    'emacs-mule))))
-
-
-;; display emoji
-;; (when (maybe-require-package 'emojify)
-;;   (setq emojify-emojis-dir (locate-user-emacs-file ".cache/emojis")
-;;         emojify-download-emojis-p 't))
-;; (add-hook 'erc-mode-hook #'global-emojify-mode)
-
-
-;; erc-image
-;; (require-package 'erc-image)
-;; (add-hook 'erc-mode-hook
-;;           (lambda ()
-;;              (add-to-list 'erc-modules 'image)
-;;              (erc-update-modules)
-;;              (setq erc-image-inline-rescale 800)))
 
 
 ;; Dynamic colume adjustment
@@ -159,20 +150,20 @@
 
 
 ;; Ignore specific annoying stuff
-(defcustom erc-foolish-content '("gif.mp4$" ".webp$" ".webm$")
+(defcustom myinc/foolish-content '("gif.mp4$" ".webp$" ".webm$")
   "Regular expressions to identify foolish content.
 Usually what happens is that you add the bots to
 `erc-ignore-list' and the bot commands to this list."
   :group 'erc
   :type '(repeat regexp))
 
-(defun erc-foolish-content (msg)
-  "Check whether MSG is foolish."
-  (erc-list-match erc-foolish-content msg))
+(defun myinc/foolish-p (msg)
+  "Check whether MSG is foolish content."
+  (erc-list-match myinc/foolish-content msg))
 
 (add-hook 'erc-insert-pre-hook
           (lambda (s)
-            (when (erc-foolish-content s)
+            (when (myinc/foolish-p s)
               (setq erc-insert-this nil))))
 
 

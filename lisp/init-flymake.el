@@ -4,6 +4,15 @@
 
 (maybe-require-package 'flymake "1.2.1")
 
+;; Prevent Flymake from creating/populating the *Flymake log* buffer.
+;; Since Emacs 26, `flymake-log-level' is obsolete and ignored: Flymake
+;; emits its log messages via `display-warning', which (by default
+;; `warning-minimum-log-level' = :warning) unconditionally creates the
+;; *Flymake log* buffer for any :warning-or-higher message, e.g. when a
+;; backend gets disabled on startup. Suppressing the 'flymake warning
+;; type stops that buffer from ever being created.
+(add-to-list 'warning-suppress-log-types '(flymake))
+
 ;; Use flycheck checkers with flymake, to extend its coverage
 (when (maybe-require-package 'flymake-flycheck)
   ;; Disable flycheck checkers for which we have flymake equivalents
